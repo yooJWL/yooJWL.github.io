@@ -11,7 +11,7 @@ var canvas = document.createElement("canvas");
 var ctx = canvas.getContext("2d");
 
 // Display lists and data
-var imageResources = [], displayList = [], spriteList = [];
+var imageResources = [], displayList = [], spriteList = [], type;
 
 // State data
 var gameState = STATEENUM.loadingscreen,
@@ -25,6 +25,8 @@ function onImagesLoaded(callValue) {
     tacoButton.setPosition(SCREENCENTERX - tacoButton.width / 2, SCREENCENTERY + 120);
     loadMainMenu();
     loadSprites();
+    spriteList[9].alive = true;
+    spriteList[10].alive = true;
 }
 
 // Initialization
@@ -57,17 +59,19 @@ function draw() {
         case STATEENUM.loadingscreen:
             ctx.drawImage(imageResources[0], SCREENCENTERX - imageResources[0].width / 2, 0);
             tacoButton.draw(ctx);
+            renderDisplayList(spriteList, ctx);
             break;
         case STATEENUM.mainmenu:
+            renderDisplayList(spriteList, ctx);
             renderDisplayList(displayList, ctx);
-            ctx.fillText("X: " + mouseX + ", Y: " + mouseY, 600, 100);
             break;
         case STATEENUM.battlescreen:
-            //renderDisplayList(spriteList, ctx);
+            renderDisplayList(spriteList, ctx);
             break;
     }
 }
 
+//load the button sprites and data
 function loadMainMenu() {
     displayList.push(new TacoButton(imageResources[1], imageResources[2], "HIPSTER"));
     displayList[0].setPosition(SCREENCENTERX - 30 - imageResources[1].width, 30);
@@ -81,17 +85,54 @@ function loadMainMenu() {
     displayList[4].setPosition(SCREENCENTERX - 30 - imageResources[1].width, 350);
 }
 
+// load main game sprites
 function loadSprites() {
+    // characters
     spriteList.push(new AnimatedSprite(imageResources[6], 210, 210, 2));
     spriteList[0].setPosition( new Vector( 0,0 ) );
     spriteList[0].maxTime = 50;
-    spriteList[0].rotRate = 0.2;
     spriteList.push(new AnimatedSprite(imageResources[5], 210, 210, 2));
     spriteList[1].setPosition( new Vector( 220,0 ) );
     spriteList[1].maxTime = 100;
-    spriteList.push(new AnimatedSprite(imageResources[4], 210, 210, 2));
+    spriteList.push(new AnimatedSprite(imageResources[13], 210, 210, 2));
     spriteList[2].setPosition( new Vector( 440,0 ) );
     spriteList[2].maxTime = 30;
+    spriteList.push(new AnimatedSprite(imageResources[9], 210, 210, 2));
+    spriteList[3].setPosition(new Vector(0, 220));
+    spriteList[3].maxTime = 30;
+    spriteList.push(new AnimatedSprite(imageResources[10], 210, 210, 2));
+    spriteList[4].setPosition(new Vector(220, 220));
+    spriteList[4].maxTime = 30;
+
+    // player health
+    spriteList.push(new AnimatedSprite(imageResources[11], 350, 35, 1));
+    spriteList[5].setPosition(new Vector(480, 400));
+    spriteList.push(new AnimatedSprite(imageResources[12], 350, 35, 1));
+    spriteList[6].setPosition(new Vector(480, 400));
+    // enemy health
+    spriteList.push(new AnimatedSprite(imageResources[11], 350, 35, 1));
+    spriteList[7].setPosition(new Vector(30, 40));
+    spriteList.push(new AnimatedSprite(imageResources[12], 350, 35, 1));
+    spriteList[8].setPosition(new Vector(30, 40));
+
+    //taco main1
+    spriteList.push(new AnimatedSprite(imageResources[14], 170, 164, 1));
+    spriteList[9].setPosition(new Vector(675, 225));
+    //taco main2
+    spriteList.push(new AnimatedSprite(imageResources[14], 170, 164, 1));
+    spriteList[10].setPosition(new Vector(25, 225));
+    //taco battle1
+    spriteList.push(new AnimatedSprite(imageResources[14], 170, 164, 1));
+    spriteList[11].setPosition(new Vector(30, 40));
+    //taco battle2
+    spriteList.push(new AnimatedSprite(imageResources[14], 170, 164, 1));
+    spriteList[12].setPosition(new Vector(480, 400));
+    // taco select menu
+    spriteList.push(new AnimatedSprite(imageResources[14], 170, 164, 1));
+    spriteList[13].setPosition(new Vector(600, 200));
+    spriteList[13].rotRate = 0.2;
+    spriteList[13].maxTime = 20;
+    //spriteList[13].scale = 1.5;
 }
 
 function buttonStates(blist) {
@@ -110,20 +151,32 @@ function update() {
             case STATEENUM.loadingscreen:
                 if (tacoButton.inBounds(mouseX, mouseY)) {
                     tacoButton.handleClicked(true);
+
                     gameState = STATEENUM.mainmenu;
+                    spriteList[9].alive = false;
+                    spriteList[10].alive = false;
+                    spriteList[13].alive = true;
+
                 }
                 break;
             case STATEENUM.mainmenu:
-                var type = buttonStates(displayList);
+                type = buttonStates(displayList);
                 if (type != "NULL") {
-                    alert(type);
                     gameState = STATEENUM.battlescreen;
+                    spriteList[0].alive = true;
+                    spriteList[1].alive = true;
+                    spriteList[2].alive = true;
+                    spriteList[3].alive = true;
+                    spriteList[4].alive = true;
+                    spriteList[5].alive = true;
+                    spriteList[6].alive = true;
+                    spriteList[7].alive = true;
+                    spriteList[8].alive = true;
                 }
                 break;
             case STATEENUM.battlescreen:
-                for (var i = 0; i < spriteList.length; i++) {
-                    spriteList[i].nextFrame();
-                }
+
+
                 break;
         }
     }
